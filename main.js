@@ -10,10 +10,8 @@ function Timer() {
     }
 
     function update(nowTime) {
-        //console.log(accumulator, lastTime);
         if (lastTime !== null) {
-            const diff = nowTime - lastTime;
-            accumulator += diff;
+            accumulator += nowTime - lastTime;
         }
 
         while (accumulator > step) {
