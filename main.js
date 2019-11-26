@@ -1,10 +1,5 @@
 import {Timer} from "./js/Timer.js";
-
-function Vec2(x = 0, y = 0) {
-    return {
-        x, y
-    };
-}
+import {Vec2} from "./js/Math.js";
 
 function Entity() {
     const pos = Vec2();
