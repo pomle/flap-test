@@ -16,19 +16,38 @@ async function createBirdEntity() {
     return bird;
 }
 
+async function createEndStateMonitor(player) {
+    const mon = Entity();
+
+    const outOfBoundsY = 400;
+
+    mon.update = function(time, world) {
+        if (player.pos.y > outOfBoundsY) {
+            console.log("AAAA");
+        }
+    };
+
+    return mon;
+}
+
 async function Game() {
     const gravity = Vec2(0, 2000);
 
     const bird = await createBirdEntity();
+    const monitor = await createEndStateMonitor(bird);
 
     const entities = [];
-    entities.push(bird);
+    entities.push(bird, monitor);
+
+    const world = {
+        entities,
+    };
 
     function update(time) {
         for (const entity of entities) {
             entity.acc.x += gravity.x * time;
             entity.acc.y += gravity.y * time;
-            entity.update(time);
+            entity.update(time, world);
         }
     }
 
@@ -56,10 +75,10 @@ async function main() {
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
-    const timer = Timer();
+    const gameSimTimer = Timer();
     const game = await Game();
 
-    timer.addListener(step => {
+    gameSimTimer.addListener(step => {
         game.update(step);
 
         context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
@@ -68,7 +87,7 @@ async function main() {
 
     window.addEventListener('keydown', game.handleKey);
 
-    timer.start();
+    gameSimTimer.start();
 }
 
 main();

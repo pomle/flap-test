@@ -10,7 +10,7 @@ export function Entity() {
         pos,
         vel,
         draw(context) {
-            context.fillRect(pos.x, pos.y, 10, 10);
+            //context.fillRect(pos.x, pos.y, 10, 10);
         },
         update(time) {
             vel.x += acc.x * time;
