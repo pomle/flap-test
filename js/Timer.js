@@ -4,6 +4,7 @@ export function Timer() {
     let step = 1/60;
     let accumulator = 0;
     let lastTime = null;
+    let running = false;
 
     function enqueue() {
         frameId = requestAnimationFrame(update);
@@ -19,7 +20,10 @@ export function Timer() {
             accumulator -= step;
         }
         lastTime = nowTime;
-        enqueue();
+
+        if (running) {
+            enqueue();
+        }
     }
 
     return {
@@ -27,10 +31,12 @@ export function Timer() {
             listeners.add(fn);
         },
         start() {
+            running = true;
             enqueue();
         },
         stop() {
             lastTime = null;
+            running = false;
             cancelAnimationFrame(frameId);
         },
     };

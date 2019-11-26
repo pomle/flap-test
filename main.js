@@ -1,7 +1,19 @@
 import {Timer} from "./js/Timer.js";
 import {Vec2} from "./js/Math.js";
+import {Camera} from "./js/Camera.js";
 import {Entity} from "./js/Entity.js";
 import {loadImage} from "./js/Load.js";
+
+async function createBackground() {
+    const sprite = await loadImage("./img/ground.png");
+    const size = Vec2(100, 100);
+
+    return function draw(context) {
+        for (let x = 0; x < context.canvas.width; x += 100) {
+            context.drawImage(sprite, x, 300, 100, 100);
+        }
+    };
+}
 
 async function createBirdEntity() {
     const sprite = await loadImage("./img/bird.png");
@@ -19,11 +31,11 @@ async function createBirdEntity() {
 async function createEndStateMonitor(player) {
     const mon = Entity();
 
-    const outOfBoundsY = 400;
+    const outOfBoundsY = 200;
 
     mon.update = function(time, world) {
         if (player.pos.y > outOfBoundsY) {
-            console.log("AAAA");
+            mon.events.emit('collide');
         }
     };
 
@@ -33,11 +45,11 @@ async function createEndStateMonitor(player) {
 async function Game() {
     const gravity = Vec2(0, 2000);
 
-    const bird = await createBirdEntity();
-    const monitor = await createEndStateMonitor(bird);
+    const drawBackground = await createBackground();
 
     const entities = [];
-    entities.push(bird, monitor);
+
+    const camera = new Camera();
 
     const world = {
         entities,
@@ -52,20 +64,14 @@ async function Game() {
     }
 
     function draw(context) {
+        drawBackground(context);
         for (const entity of entities) {
-            entity.draw(context);
-        }
-    }
-
-    function handleKey(event) {
-        if (event.code === 'Space') {
-            bird.vel.y = -200;
-            bird.acc.y = 0;
+            entity.draw(context, camera);
         }
     }
 
     return {
-        handleKey,
+        entities,
         update,
         draw,
     };
@@ -76,16 +82,35 @@ async function main() {
     const context = canvas.getContext('2d');
 
     const gameSimTimer = Timer();
+
+
     const game = await Game();
+
+    const bird = await createBirdEntity();
+    const monitor = await createEndStateMonitor(bird);
+
+    monitor.events.on('collide', () => {
+        console.log("stop");
+        void gameSimTimer.stop();
+    });
+
+    game.entities.push(bird, monitor);
 
     gameSimTimer.addListener(step => {
         game.update(step);
 
-        context.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+        context.clearRect(0, 0, canvas.width, canvas.height);
         game.draw(context);
     });
 
-    window.addEventListener('keydown', game.handleKey);
+    function handleKey(event) {
+        if (event.code === 'Space') {
+            bird.vel.y = -200;
+            bird.acc.y = 0;
+        }
+    }
+
+    window.addEventListener('keydown', handleKey);
 
     gameSimTimer.start();
 }
