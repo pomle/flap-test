@@ -7,17 +7,17 @@ async function createBirdEntity() {
     const sprite = await loadImage("./img/bird.png");
 
     const bird = Entity();
-    bird.vel.x = 10;
+    bird.vel.x = 100;
 
     bird.draw = function(context) {
-        context.drawImage(sprite, bird.pos.x, bird.pos.y);
+        context.drawImage(sprite, bird.pos.x, bird.pos.y, 80, 100);
     };
 
     return bird;
 }
 
 async function Game() {
-    const gravity = Vec2(0, 500);
+    const gravity = Vec2(0, 2000);
 
     const bird = await createBirdEntity();
 
@@ -40,7 +40,7 @@ async function Game() {
 
     function handleKey(event) {
         if (event.code === 'Space') {
-            bird.vel.y = -140;
+            bird.vel.y = -200;
             bird.acc.y = 0;
         }
     }
