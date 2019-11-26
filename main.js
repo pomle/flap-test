@@ -1,11 +1,25 @@
 import {Timer} from "./js/Timer.js";
 import {Vec2} from "./js/Math.js";
 import {Entity} from "./js/Entity.js";
+import {loadImage} from "./js/Load.js";
 
-function Game() {
-    const gravity = Vec2(0, 500);
+async function createBirdEntity() {
+    const sprite = await loadImage("./img/bird.png");
+
     const bird = Entity();
     bird.vel.x = 10;
+
+    bird.draw = function(context) {
+        context.drawImage(sprite, bird.pos.x, bird.pos.y);
+    };
+
+    return bird;
+}
+
+async function Game() {
+    const gravity = Vec2(0, 500);
+
+    const bird = await createBirdEntity();
 
     const entities = [];
     entities.push(bird);
@@ -38,12 +52,12 @@ function Game() {
     };
 }
 
-function main() {
+async function main() {
     const canvas = document.getElementById('canvas');
     const context = canvas.getContext('2d');
 
     const timer = Timer();
-    const game = Game();
+    const game = await Game();
 
     timer.addListener(step => {
         game.update(step);
